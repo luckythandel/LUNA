@@ -49,7 +49,7 @@ then
 else
     echo "[\e[93m+\e0m] installing python3 ...";
     apt install python3 -y
-    setup();
+    setup;
     echo "[\e[92m+\e[0m] Python3 installed successfully";
 fi
 
