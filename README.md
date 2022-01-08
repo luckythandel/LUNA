@@ -1,8 +1,6 @@
 ![Logo](https://github.com/luckythandel/LUNA/blob/main/assets/cover/Luna.jpg)
 #### Your Linux system is not your Linux System anymore 
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)    
-[![forthebadge docker_containers](http://github.com/luckythandel/LUNA/blob/main/assets/badges/docker-containers.svg)](https://www.docker.com/)    
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)    [![forthebadge docker_containers](https://github.com/luckythandel/LUNA/blob/main/assets/badges/docker-containers.svg)](https://www.docker.com/)    
 
 # About the project
 SSH Sandboxing over the network using Python3. you can create your own server which provides Docker containers 
