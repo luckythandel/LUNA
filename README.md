@@ -17,7 +17,7 @@ For now, it is just an ubuntu container, you can spawn, but soon, Redhat & Kali 
 - Error handling over the network
 - container_storage, container_timeout etc can vary
 - memory-efficient
-- setup is easy (`setup.sh`)
+- setup is easy (`server_setup.sh`)
 
 # Installation & Setup
 1. clone the repository on the server machine and Client machine
