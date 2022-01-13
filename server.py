@@ -129,18 +129,72 @@ class Service(sock.BaseRequestHandler):
         elif(option == 2):
             #For RedHat
             console.info(f"option: {option}")
-            image_name = "hjd48/redhat:latest"
+            self.ack_seq()
+            image_name = "redhat_ssh"
+            try:
+                command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
+                if(networkHost):
+                    command.insert(3, "--network")
+                    command.insert(4, "bridge")
+                container_io = subprocess.run(command, capture_output=True)
+                container_id = container_io.stdout.strip().decode()
+                self.send(container_id)
+                console.info(f"Starting container {container_id}...")
+                start_container_command = ["docker", "container", "start", container_id]
+                subprocess.run(start_container_command)
+                console.success("container started successfully")
+                container_inspect_command = ["docker", "inspect", container_id]
+                container_inspect = subprocess.run(container_inspect_command, capture_output=True)
+                container_inspect_result = container_inspect.stdout.strip().decode()
+                self.send(container_inspect_result)
+                passwd = self.container_password_change(container_id)
+                console.success(f"Password: {passwd}")
+                self.send(passwd)
+                console.info("served successfully, socket closed")
+                return container_id
+            except Exception as e:
+                console.warn("Couldn't close the socket!")
+                console.error(e)
+                return 0
+
         elif(option == 3):
             #For Kali
             console.info(f"option: {option}")
-            image_name = "kalilinux/kali-rolling"
+            self.ack_seq()
+            image_name = "kali_ssh"
+            try:
+                command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
+                if(networkHost):
+                    command.insert(3, "--network")
+                    command.insert(4, "bridge")
+                container_io = subprocess.run(command, capture_output=True)
+                container_id = container_io.stdout.strip().decode()
+                self.send(container_id)
+                console.info(f"Starting container {container_id}...")
+                start_container_command = ["docker", "container", "start", container_id]
+                subprocess.run(start_container_command)
+                console.success("container started successfully")
+                container_inspect_command = ["docker", "inspect", container_id]
+                container_inspect = subprocess.run(container_inspect_command, capture_output=True)
+                container_inspect_result = container_inspect.stdout.strip().decode()
+                self.send(container_inspect_result)
+                passwd = self.container_password_change(container_id)
+                console.success(f"Password: {passwd}")
+                self.send(passwd)
+                console.info("served successfully, socket closed")
+                return container_id
+            except Exception as e:
+                console.warn("Couldn't close the socket!")
+                console.error(e)
+                return 0
+                
         else:
             return -1
 
     def handle(self):
         container_id = self.box_request()
         self.container_ssh_start(container_id)
-        self.container_rm(container_id, timeout=180) 
+        self.container_rm(container_id, timeout=120) 
 
     def send(self, string, newline=True):
         try:
