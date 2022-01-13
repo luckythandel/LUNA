@@ -13,6 +13,7 @@ For now, it is just an ubuntu container, you can spawn, but soon, Redhat & Kali 
 - Easy to read & customize
 - SSH direct connection through (`client.py`)
 - Interactive panel for quick results
+- ubuntu, KaliLinux and RedHat available 
 - Error handling over the network
 - container_storage, container_timeout etc can vary
 - memory-efficient
@@ -42,6 +43,5 @@ $ python3 client.py
 # Comming Soon
 - Expansion of networks
 - OpenVPN setup automation
-- Redhat & kali 
-- Ubuntu with more utilities 
+- Boxes with more utilities & Tools 
 - Maybe privileged containers (where you can interact with kernel drives)
