@@ -9,10 +9,13 @@ setup()
     echo -e "\e[34mServer Setup\e[0m";
     echo -e "[\e[93m~\e[0m] Installing openvpn & docker";
     apt install docker.io openvpn -y
-    # Build Ubuntu Image
-    echo "[+]Building Docker image";
-    docker build ubuntu/Dockerfile -t "ubuntu_ssh"; 
+    # Build Ubuntu, Kali, RedHat Image
+    echo "[+] Building Docker images";
+    docker build ubuntu/ -t "ubuntu_ssh";
+    docker build kali/ -t "kali_ssh";
+    docker build redhat/ -t "redhat_ssh";
     # Setup a VPN Server
+    ####STILL IN DEVELOPMENT####
     exit 0;
     warning="\e[32mIf the server and clients are in the same Local Network, you won't require to setup a VPN server on your system.
     want to proceed further\e[0m(y/n): ";
@@ -39,18 +42,19 @@ setup()
 echo -e "[\e[093m~\e[0m] Python version 3 is required to setup this on your local machine";
 echo -e "\e[93m\e[0mChecking...";
 
-if [ -f "/usr/bin/python3" ] && [ `echo `python3 -V` | cut -c 8` -eq "3" ];
+if [ -f "/usr/bin/python3" ] && [ $(echo "`python3 -V`" | cut -c 8) -eq "3" ];
 then
         echo "Python3 already exists\!";
-
-elif [ -f "/usr/bin/python" ] && [ `echo `python -V` | cut -c 8` -eq "3" ];
+        setup
+    elif [ -f "/usr/bin/python" ] && [ $(echo "`python -V`" | cut -c 8) -eq "3" ];
 then
     echo "Python3 already exists\!";
+    setup
 else
-    echo "[\e[93m+\e0m] installing python3 ...";
+    echo -e "[\e[93m+\e[0m] installing python3 ...";
     apt install python3 -y
-    setup;
-    echo "[\e[92m+\e[0m] Python3 installed successfully";
+    setup
+    echo -e "[\e[92m+\e[0m] Python3 installed successfully";
 fi
 
 
