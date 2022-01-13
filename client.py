@@ -10,8 +10,8 @@ from pexpect import pxssh
 help_menu = """./client.py <server_addr> <port>"""
 choices = '''
 (1.) Ubuntu
-(2.) RedHat (Coming Soon)
-(3.) Kali   (Coming Soon)
+(2.) RedHat 
+(3.) Kali 
 '''
 if(len(sys.argv) < 3):
     console.warn("Host: 127.0.0.1 </> PORT: 1337")
@@ -54,7 +54,7 @@ def connection_creator():
         ack_seq(s)
         print(choices, end='')
         linux_distro = input("=> ").encode()
-        if(int(linux_distro) != 1) #not in [i for i in range(1,4)]):
+        if(int(linux_distro) not in [i for i in range(1,4)]):
             console.error(f"are you fu*king blid or what")
             s.close()
             return -1, -1, -1;
@@ -62,7 +62,7 @@ def connection_creator():
         if(send_ack(s)):
             console.info("fetching...")
             container_id = s.recv(1024)
-            container_inspect = s.recv(8000).decode()
+            container_inspect = s.recv(100024).decode()
             container_passwd  = s.recv(1024).strip().decode()
             container_inspect_json = json.loads(container_inspect)
             container_ip = container_inspect_json[0]['NetworkSettings']['Networks']['bridge']['IPAddress']
