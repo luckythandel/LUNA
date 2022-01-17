@@ -41,7 +41,5 @@ $ python3 client.py
 
 
 # Comming Soon
-- Expansion of networks
-- OpenVPN setup automation
 - Boxes with more utilities & Tools 
 - Maybe privileged containers (where you can interact with kernel drives)
