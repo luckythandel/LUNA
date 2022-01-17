@@ -26,8 +26,8 @@ $ git clone https://github.com/luckythandel/LUNA.git
 ```
 2. setup the server machine
 ```sh
-$ chmod +x ./setup.sh
-$ ./setup.sh 
+$ chmod +x ./server_setup.sh
+$ ./server_setup.sh 
 ```
 3. start the server
 ```bash
