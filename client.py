@@ -10,8 +10,8 @@ from pexpect import pxssh
 help_menu = """./client.py <server_addr> <port>"""
 choices = '''
 (1.) Ubuntu
-(2.) RedHat 
-(3.) Kali 
+(2.) RedHat
+(3.) Kali
 '''
 if(len(sys.argv) < 3):
     console.warn("Host: 127.0.0.1 </> PORT: 1337")
@@ -19,7 +19,7 @@ if(len(sys.argv) < 3):
     PORT = 1337
 else:
     HOST = sys.argv[1]
-    PORT = sys.argv[2]
+    PORT = int(sys.argv[2])
 
 def send_ack(conn):
     seq = str(random.randint(8000, 9000)).encode()
