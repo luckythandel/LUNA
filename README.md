@@ -39,7 +39,9 @@ $ python3 client.py
 ```
 *Note: default port started by the server is `1337`, you can change it in `server.py` & `client.py` both*
 
+*Note: add `UserKnownHostsFile /dev/null` to your ssh_config to prevent host identification error while connecting to container's ssh*
 
 # Comming Soon
 - Boxes with more utilities & Tools 
 - Maybe privileged containers (where you can interact with kernel drives)
+- auditing features
