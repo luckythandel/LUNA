@@ -45,7 +45,7 @@ setup()
     echo -e "\e[95m@Luckythandel\e[0m";
     echo -e "\e[34mServer Setup\e[0m";
     echo -e "[\e[93m~\e[0m] Installing openvpn & docker";
-    apt install docker.io openvpn -y
+    apt install runc docker.io openvpn -y
     # Build Ubuntu, Kali, RedHat Image
     echo "[+] Building Docker images";
     docker build ubuntu/ -t "ubuntu_ssh";
