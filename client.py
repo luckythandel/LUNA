@@ -7,14 +7,15 @@ from py_console import console
 import sys
 from pexpect import pxssh
 
-help_menu = """./client.py <server_addr> <port>"""
+help_menu = """synthx: python3 client.py <server_addr> <port>\n"""
 choices = '''
 (1.) Ubuntu
 (2.) RedHat
 (3.) Kali
 '''
 if(len(sys.argv) < 3):
-    console.warn("Host: 127.0.0.1 </> PORT: 1337")
+    print(help_menu)
+    console.warn('Default IP:PORT <=> 127.0.0.1:1337')
     HOST = "127.0.0.1"
     PORT = 1337
 else:
@@ -74,6 +75,5 @@ container_id, container_ip, password = connection_creator()
 if(container_id == -1 and container_ip == -1 and password == -1): sys.exit(0)
 console.success(f"ID: {container_id[:12]}\nIP: {container_ip}\nusername: user\npassword: {password}", showTime=False)
 if(input("SSH connection(Y/N):").lower() == 'y'):
-    pass
     ssh_shell(container_id, container_ip, password=password)
 sys.exit(0)
