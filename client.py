@@ -52,7 +52,7 @@ def connection_creator():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((HOST, PORT))
-        ack_seq(s)
+        #ack_seq(s)
         print(choices, end='')
         linux_distro = input("=> ").encode()
         if(int(linux_distro) not in [i for i in range(1,4)]):
@@ -60,14 +60,14 @@ def connection_creator():
             s.close()
             return -1, -1, -1;
         s.send(linux_distro)
-        if(send_ack(s)):
-            console.info("fetching...")
-            container_id = s.recv(1024)
-            container_inspect = s.recv(100024).decode()
-            container_passwd  = s.recv(1024).strip().decode()
-            container_inspect_json = json.loads(container_inspect)
-            container_ip = container_inspect_json[0]['NetworkSettings']['Networks']['bridge']['IPAddress']
-            return container_id.strip().decode(), container_ip, container_passwd
+        #if(send_ack(s)):
+        console.info("fetching...")
+        container_id = s.recv(1024)
+        container_inspect = s.recv(100024).decode()
+        container_passwd  = s.recv(1024).strip().decode()
+        container_inspect_json = json.loads(container_inspect)
+        container_ip = container_inspect_json[0]['NetworkSettings']['Networks']['bridge']['IPAddress']
+        return container_id.strip().decode(), container_ip, container_passwd
     except Exception as e:
         raise e
 

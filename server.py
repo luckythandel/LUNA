@@ -1,5 +1,5 @@
 import socketserver as sock
-import threading 
+import threading
 import random
 import sys
 import string
@@ -24,7 +24,7 @@ class Service(sock.BaseRequestHandler):
         seq = ack + 1
         self.send(str(seq))
         return
-    
+
     def container_rm(self, container_id, timeout):
         '''
         container may take space and other resources in the system
@@ -41,10 +41,10 @@ class Service(sock.BaseRequestHandler):
             console.success("Container killed successfully")
         except Exception as e:
             console.error(f"Couldn't kill container {container_id[:8]} due to:\n {e}")
-            
+
     def container_password_change(self, container_id, pass_len=12, user="user", root=False):
         '''
-        change the password for the docker container 
+        change the password for the docker container
         default user is `user` with the default password `kingping`
         this fuction generate and change the password for the `user`
         if `root` = True, it changes the root user's password too.
@@ -83,10 +83,10 @@ class Service(sock.BaseRequestHandler):
         sends `container_id`, `container_passwd`, `container_ip`
         three options are available: Ubuntu, RedHat, Kalirolling
         '''
-        if(not self.seq_ack()):
-            console.error("Something went wrong")
-            return -1
-        console.info("handshaking completed")
+        #if(not self.seq_ack()):
+        #    console.error("Something went wrong")
+        #    return -1
+        #console.info("handshaking completed")
         option = None
         try:
             option = int(self.recv(1024))
@@ -97,9 +97,9 @@ class Service(sock.BaseRequestHandler):
         if(option == 1):
             console.info(f"option: {option}")
             #For Ubuntu Container
-            self.ack_seq()
+            #self.ack_seq()
             image_name = "ubuntu_ssh"
-            
+
             try:
                 command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
                 if(networkHost):
@@ -129,7 +129,7 @@ class Service(sock.BaseRequestHandler):
         elif(option == 2):
             #For RedHat
             console.info(f"option: {option}")
-            self.ack_seq()
+            #self.ack_seq()
             image_name = "redhat_ssh"
             try:
                 command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
@@ -160,7 +160,7 @@ class Service(sock.BaseRequestHandler):
         elif(option == 3):
             #For Kali
             console.info(f"option: {option}")
-            self.ack_seq()
+            #self.ack_seq()
             image_name = "kali_ssh"
             try:
                 command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
@@ -187,14 +187,14 @@ class Service(sock.BaseRequestHandler):
                 console.warn("Couldn't close the socket!")
                 console.error(e)
                 return 0
-                
+
         else:
             return -1
 
     def handle(self):
         container_id = self.box_request()
         self.container_ssh_start(container_id)
-        self.container_rm(container_id, timeout=120) 
+        self.container_rm(container_id, timeout=180)
 
     def send(self, string, newline=True):
         try:
@@ -203,13 +203,13 @@ class Service(sock.BaseRequestHandler):
             return 0
         except Exception as e:
             console.error(e)
-    
+
     def recv(self, buf):
         try:
             return self.request.recv(buf).decode()
         except Exception as e:
             console.error(e)
-            
+
 
 class ThreadService(sock.ThreadingMixIn, sock.TCPServer, sock.DatagramRequestHandler):
     pass
