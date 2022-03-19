@@ -8,7 +8,7 @@ to the requests. It won't easily crash with simultaneous requests due to the imp
 Tested on Kalirolling. Luna project is made to overcome the problem of providing Linux systems at a place (University Lab) where hosts are using Windows Machines and Time is short to install Linux in each System.
 LUNA will work from one system which has Linux installed in it (to fulfil the requirements of docker to run Linux containers over a Linux kernel host only) and will serve other systems.
 For now, it is just an ubuntu container, you can spawn, but soon, Redhat & Kali will also be there.
-[!Screenshot](https://github.com/luckythandel/assets/screenshots/ss1.png)
+![Screenshot](https://github.com/luckythandel/LUNA/blob/main/assets/screenshots/ss1.png)
 
 # Features
 - Easy to read & customize
