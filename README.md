@@ -7,7 +7,6 @@ SSH Sandboxing over the network using Python3. you can create your own server wh
 to the requests. It won't easily crash with simultaneous requests due to the implementation of multi-threading in sockets.
 Tested on Kalirolling. Luna project is made to overcome the problem of providing Linux systems at a place (University Lab) where hosts are using Windows Machines and Time is short to install Linux in each System.
 LUNA will work from one system which has Linux installed in it (to fulfil the requirements of docker to run Linux containers over a Linux kernel host only) and will serve other systems.
-For now, it is just an ubuntu container, you can spawn, but soon, Redhat & Kali will also be there.
 [![asciicast](https://asciinema.org/a/mB0g9D3Ksl7ry6I5om0TrPdKO.svg)](https://asciinema.org/a/mB0g9D3Ksl7ry6I5om0TrPdKO)
 
 # Features
