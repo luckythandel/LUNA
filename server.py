@@ -8,22 +8,96 @@ from py_console import console
 import time
 
 
+def terminal_size():
+    try:
+        rows, columns = subprocess.check_output(['stty', 'size']).split()
+        return int(columns)
+    except subprocess.CalledProcessError as e:
+        return int(20)
+
+def clear():
+        sys.stdout.write("\033[F")
+        sys.stdout.write("\033[K") #clears until EOL
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    BADFAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    BG_ERR_TXT  = '\033[41m' # For critical errors and crashes
+    BG_HEAD_TXT = '\033[100m'
+    BG_ENDL_TXT = '\033[46m'
+    BG_CRIT_TXT = '\033[45m'
+    BG_HIGH_TXT = '\033[41m'
+    BG_MED_TXT  = '\033[43m'
+    BG_LOW_TXT  = '\033[44m'
+    BG_INFO_TXT = '\033[42m'
+
+    BG_SCAN_TXT_START = '\x1b[6;30;42m'
+    BG_SCAN_TXT_END   = '\x1b[0m'
+
+# Initiliazing the idle loader/spinner class
+class Spinner:
+    busy = False
+    delay = 0.005 # 0.05
+    '''
+    inspired from the repo: https://github.com/skavngr/rapidscan 
+    '''
+    @staticmethod
+    def spinning_cursor():
+        while 1:
+            #for cursor in '|/-\\/': yield cursor #←↑↓→
+            #for cursor in '←↑↓→': yield cursor
+            #for cursor in '....scanning...please..wait....': yield cursor
+            for cursor in ' ': yield cursor
+    def __init__(self, delay=None):
+        self.spinner_generator = self.spinning_cursor()
+        if delay and float(delay): self.delay = delay
+        self.disabled = False
+
+    def spinner_task(self):
+        inc = 0
+        try:
+            while self.busy:
+                if not self.disabled:
+                    x = bcolors.BG_SCAN_TXT_START+next(self.spinner_generator)+bcolors.BG_SCAN_TXT_END
+                    inc = inc + 1
+                    print(x,end='')
+                    if inc>random.uniform(0,terminal_size()): #30 init
+                        print(end="\r")
+                        bcolors.BG_SCAN_TXT_START = '\x1b[6;30;'+str(round(random.uniform(40,47)))+'m'
+                        inc = 0
+                    sys.stdout.flush()
+                time.sleep(self.delay)
+                if not self.disabled:
+                    sys.stdout.flush()
+
+        except (KeyboardInterrupt, SystemExit):
+            print("\n\t"+ bcolors.BG_ERR_TXT+"RapidScan received a series of Ctrl+C hits. Quitting..." +bcolors.ENDC)
+            sys.exit(1)
+
+    def start(self):
+        self.busy = True
+        try:
+            threading.Thread(target=self.spinner_task).start()
+        except Exception as e:
+            print("\n")
+
+    def stop(self):
+        try:
+            self.busy = False
+            time.sleep(self.delay)
+        except (KeyboardInterrupt, SystemExit):
+            print("\n\t"+ bcolors.BG_ERR_TXT+"RapidScan received a series of Ctrl+C hits. Quitting..." +bcolors.ENDC)
+            sys.exit(1)
+
 class Service(sock.BaseRequestHandler):
     allow_resuse_address = True
-
-    def seq_ack(self):
-        seq = str(random.randint(8000, 9000))
-        self.send(seq)
-        ack = int(self.recv(1024))
-        if(int(seq)+1 == ack):
-            return True
-        return False
-
-    def ack_seq(self):
-        ack = int(self.recv(1024))
-        seq = ack + 1
-        self.send(str(seq))
-        return
 
     def container_rm(self, container_id, timeout):
         '''
@@ -50,11 +124,13 @@ class Service(sock.BaseRequestHandler):
         if `root` = True, it changes the root user's password too.
         '''
         try:
+            clear()
+            console.info(f"Changing password for user@{container_id[:8]}")
             new_passwd = ''.join([random.choice(string.ascii_letters+string.digits) for i in range(pass_len)])
             command = ["echo", "-e", f"{new_passwd}\n{new_passwd}"]
-            io = subprocess.run(command, capture_output=True)
+            io = subprocess.check_output(command)
             change_passwd_command = ["docker", "exec", "-i", container_id, "passwd", user]
-            subprocess.run(change_passwd_command, input=io.stdout)
+            subprocess.check_output(change_passwd_command, input=io)
             if(root):
                 command = ["echo", "-e", f"{new_passwd}\n{new_passwd}"]
                 io = subprocess.run(command, capture_output=True)
@@ -72,22 +148,21 @@ class Service(sock.BaseRequestHandler):
     def container_ssh_start(self, container_id):
         try:
             command = ["docker", "exec", container_id, "service", "ssh", "restart"]
-            io = subprocess.run(command, capture_output=True)
-            console.log(io)
+            io = subprocess.check_output(command)
+            # console.log(io)
         except Exception as e:
             console.error(e)
 
-    def box_request(self, networkHost=True, storage="500m"):
+    def box_request(self, networkHost=True, storage="500m", verbose=False):
         '''
         Allocates a container for a limited time with a limited storage to the client
         sends `container_id`, `container_passwd`, `container_ip`
         three options are available: Ubuntu, RedHat, Kalirolling
         '''
-        #if(not self.seq_ack()):
-        #    console.error("Something went wrong")
-        #    return -1
-        #console.info("handshaking completed")
+
+        spinner = Spinner()
         option = None
+        spinner.start()
         try:
             option = int(self.recv(1024))
         except Exception as e:
@@ -95,9 +170,9 @@ class Service(sock.BaseRequestHandler):
             console.log(e ,showTime=False)
 
         if(option == 1):
+            clear()
             console.info(f"option: {option}")
             #For Ubuntu Container
-            #self.ack_seq()
             image_name = "ubuntu_ssh"
 
             try:
@@ -105,18 +180,21 @@ class Service(sock.BaseRequestHandler):
                 if(networkHost):
                     command.insert(3, "--network")
                     command.insert(4, "bridge")
-                container_io = subprocess.run(command, capture_output=True)
-                container_id = container_io.stdout.strip().decode()
+                container_io = subprocess.check_output(command)
+                container_id = container_io.strip().decode()
                 self.send(container_id)
                 console.info(f"Starting container {container_id}...")
                 start_container_command = ["docker", "container", "start", container_id]
-                subprocess.run(start_container_command)
+                subprocess.check_output(start_container_command)
                 console.success("container started successfully")
                 container_inspect_command = ["docker", "inspect", container_id]
-                container_inspect = subprocess.run(container_inspect_command, capture_output=True)
-                container_inspect_result = container_inspect.stdout.strip().decode()
+                container_inspect = subprocess.check_output(container_inspect_command)
+                container_inspect_result = container_inspect.strip().decode()
                 self.send(container_inspect_result)
+                clear()
+                spinner.stop()
                 passwd = self.container_password_change(container_id)
+                clear()
                 console.success(f"Password: {passwd}")
                 self.send(passwd)
                 console.info("served successfully, socket closed")
@@ -127,26 +205,30 @@ class Service(sock.BaseRequestHandler):
                 return 0
 
         elif(option == 2):
-            #For RedHat
+            clear()
+            #For RedHat Container
             console.info(f"option: {option}")
-            #self.ack_seq()
             image_name = "redhat_ssh"
             try:
                 command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
                 if(networkHost):
                     command.insert(3, "--network")
                     command.insert(4, "bridge")
-                container_io = subprocess.run(command, capture_output=True)
-                container_id = container_io.stdout.strip().decode()
+                container_io = subprocess.check_output(command)
+                container_id = container_io.strip().decode()
                 self.send(container_id)
+                clear()
+                spinner.stop()
                 console.info(f"Starting container {container_id}...")
                 start_container_command = ["docker", "container", "start", container_id]
-                subprocess.run(start_container_command)
+                subprocess.check_output(start_container_command)
                 console.success("container started successfully")
                 container_inspect_command = ["docker", "inspect", container_id]
-                container_inspect = subprocess.run(container_inspect_command, capture_output=True)
-                container_inspect_result = container_inspect.stdout.strip().decode()
+                container_inspect = subprocess.check_output(container_inspect_command)
+                container_inspect_result = container_inspect.strip().decode()
                 self.send(container_inspect_result)
+                clear()
+                spinner.stop()
                 passwd = self.container_password_change(container_id)
                 console.success(f"Password: {passwd}")
                 self.send(passwd)
@@ -158,26 +240,30 @@ class Service(sock.BaseRequestHandler):
                 return 0
 
         elif(option == 3):
-            #For Kali
+            #For Kali Container
+            clear()
             console.info(f"option: {option}")
-            #self.ack_seq()
             image_name = "kali_ssh"
             try:
                 command = ["docker", "container", "create", "-m", storage, "-i", "-t", image_name, "/bin/sh"]
                 if(networkHost):
                     command.insert(3, "--network")
                     command.insert(4, "bridge")
-                container_io = subprocess.run(command, capture_output=True)
-                container_id = container_io.stdout.strip().decode()
+                container_io = subprocess.check_output(command)
+                container_id = container_io.strip().decode()
                 self.send(container_id)
+                clear()
+                spinner.stop()
                 console.info(f"Starting container {container_id}...")
                 start_container_command = ["docker", "container", "start", container_id]
-                subprocess.run(start_container_command)
+                subprocess.check_output(start_container_command)
                 console.success("container started successfully")
                 container_inspect_command = ["docker", "inspect", container_id]
-                container_inspect = subprocess.run(container_inspect_command, capture_output=True)
-                container_inspect_result = container_inspect.stdout.strip().decode()
+                container_inspect = subprocess.check_output(container_inspect_command)
+                container_inspect_result = container_inspect.strip().decode()
                 self.send(container_inspect_result)
+                clear()
+                spinner.stop()
                 passwd = self.container_password_change(container_id)
                 console.success(f"Password: {passwd}")
                 self.send(passwd)
@@ -192,10 +278,10 @@ class Service(sock.BaseRequestHandler):
             return -1
 
     def handle(self):
-        container_id = self.box_request()
+        container_id = self.box_request()        
         self.container_ssh_start(container_id)
-        self.container_rm(container_id, timeout=180)
-
+        self.container_rm(container_id, timeout=5) # timeout in seconds
+        
     def send(self, string, newline=True):
         try:
             if(newline): string = string+"\n"
@@ -223,6 +309,7 @@ def main():
     server_thread.daemon = True
     server_thread.start()
     console.info(f"Server Started on port {port}")
+
 
     while(True): time.sleep(1)
 
