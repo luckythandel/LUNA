@@ -13,6 +13,7 @@ For now, it is just an ubuntu container, you can spawn, but soon, Redhat & Kali 
 - Easy to read & customize
 - SSH direct connection through (`client.py`)
 - Interactive panel for quick results
+- Colorful output
 - ubuntu, KaliLinux and RedHat available 
 - Error handling over the network
 - container_storage, container_timeout etc can vary
@@ -22,20 +23,20 @@ For now, it is just an ubuntu container, you can spawn, but soon, Redhat & Kali 
 # Installation & Setup
 1. clone the repository on the server machine and Client machine
 ```sh
-$ git clone https://github.com/luckythandel/LUNA.git
+❯ git clone https://github.com/luckythandel/LUNA.git
 ```
 2. setup the server machine
 ```sh
-$ chmod +x ./server_setup.sh
-$ ./server_setup.sh 
+❯ chmod +x ./server_setup.sh
+❯ ./server_setup.sh 
 ```
 3. start the server
 ```bash
-$ python3 server.py
+❯ python3 server.py
 ```
 4. let the client choose
 ```bash
-$ python3 client.py
+❯ python3 client.py
 ```
 *Note: default port started by the server is `1337`, you can change it in `server.py` & `client.py` both*
 
